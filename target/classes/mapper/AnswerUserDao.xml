@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.AnswerUserDao">
+
+	<resultMap type="answerUser" id="answerUserInfo">
+		<id column="id" property="id"></id>
+		<result column="username" property="username"></result>
+		<result column="qq" property="qq"></result>
+		<result column="email" property="email"></result>
+		<result column="goods_id" property="goodsId"></result>
+	</resultMap>
+	
+	<select id="selInfoById" parameterType="Integer" resultMap="answerUserInfo">
+		select * from answer_user where id=#{id}
+	</select>
+	
+	<select id="selInfoByGoodsId" parameterType="Integer" resultMap="answerUserInfo">
+		select * from answer_user where goods_id=#{goodsId}
+	</select>
+	
+	<insert id="insert" parameterType="answerUser">
+		insert into answer_user (username,qq,email,goods_id) values (#{username},#{qq},#{email},#{goodsId})
+	</insert>
+	
+	<delete id="deleteById" parameterType="Integer">
+		delete from answer_user where id=#{id}
+	</delete>
+	
+	<select id="selInfoByUsername" parameterType="String" resultType="Integer">
+		select id from answer_user where username=#{username}
+	</select>
+	
+</mapper>

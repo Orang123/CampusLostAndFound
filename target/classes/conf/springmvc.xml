@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   		http://www.springframework.org/schema/beans/spring-beans.xsd
+	   		http://www.springframework.org/schema/context
+	   		http://www.springframework.org/schema/context/spring-context.xsd
+	   		http://www.springframework.org/schema/mvc
+	   		http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	   		
+	   	<!-- 扫描controller包下面所有使用注解的类型,将其自动实例化为bean-->	
+	   	<context:component-scan base-package="cn.edu.xtu.lostfound.controller,cn.edu.xtu.lostfound.websocket"></context:component-scan>
+	   	<!-- 开启mvc注解驱动自动注册DefaultAnnotationHandlerMapping，AnnotationMethodHandlerAdapter 这里记得是单标签-->
+	   	<mvc:annotation-driven />
+		
+		<!-- 使用默认的servlet来相应静态文件，因为在web.xml中使用了DispatcherServlet截获所有的请求url，
+		而引入<scprit type="text/javascript" src="js/jquery-1.11.0.mim.js"/>的时候，DispatcherServlet会将“/”看成请求路径，
+		找不到他的时候会报404错误。而当配置文件加上这个默认的Servlet时，Servlet在找不到它时会去找静态内容，即js目录 -->
+	   	<!-- <mvc:default-servlet-handler/> 采用默认的servlet方式-->
+	   	
+	   	<!-- 静态资源映射 -->
+	   	<!-- location是实际的路径,一个*代表一层文件夹 **代表子文件下的子文件 -->
+		<!-- mvc:resource这里只是为了解决请求的静态资源与请求controller的动态页面资源区分开,否则会报404 -->
+	   	<mvc:resources location="/resources/js/" mapping="/resources/js/**"></mvc:resources>
+	   	<mvc:resources location="/resources/css/" mapping="/resources/css/**"></mvc:resources>
+	   	<mvc:resources location="/resources/images/" mapping="/resources/images/**"></mvc:resources>
+	   	<mvc:resources location="/resources/upload_files/" mapping="/resources/upload_files/**"></mvc:resources>
+	   	<!-- resources/upload_goods_pic是静态资源必须在springmvc.xml里配置静态资源映射,才能访问到 -->
+	   	<mvc:resources location="/resources/upload_goods_pic/" mapping="/resources/upload_goods_pic/**"></mvc:resources>
+	   	
+	   	<!-- 视图解析器可以不为bean配置id,因为在DispatcherServlet初始化时，
+	   		initViewResolvers获取bean对象是通过Bean的类型来获取的 -->
+	   	<!-- 配置视图解析器 -->
+	   	<bean id="viewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+	   		<!-- 如果在JSP中使用JSTL标签来处理格式化和信息的话，那么就会让InternalResourceViewResolver将视图解析为JstlView
+	   		如果想让InternalResourceViewResolver将视图解析 为JstlView，而不是InternalResourceView的话，那么我们只需设置它的viewClass属性即可： -->
+	   		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"></property>
+	   		<!-- 配置视图解析的前缀和后缀 -->
+	   		<property name="prefix" value="/WEB-INF/view/"></property>
+	   		<property name="suffix" value=".jsp"></property>
+	   	</bean>
+	   	
+	   	<!-- 这里文件上传解析器必须配置bean id为multipartResolver原因是DispatcherServlet初始化时，
+	   		initMultipartResolver获取bean对象是通过Bean的id来获取的，而这个Bean的id在DispatcherServlet中被定义为常量并进行了赋值初始化，初始化的值就是multipartResolver -->
+	   	<!-- 文件上传解析器 -->
+	   	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+	   		<!-- 每次上传限制大小为10m 单位是字节 -->
+	   		<property name="maxUploadSize" value="10242880"></property>
+	   	</bean>
+	   	
+	   	<!-- 配置拦截器 -->
+	   	<!--  <mvc:interceptors>
+			  <mvc:interceptor>
+				这里是mapping path是针对某些特定的url指定拦截器
+				<mvc:mapping path="/demo4"/>
+				<mvc:mapping path="/demo1"/>
+				<mvc:mapping path="/demo2"/>
+				<bean class="com.bjsxt.interceptor.DemoInterceptor"></bean>
+				</mvc:interceptor> 
+		 执行时的顺序和拦截器的配置顺序有关 拦截器栈先进后出 
+			<bean class="com.bjsxt.interceptor.DemoInterceptor"></bean>
+			<bean class="com.bjsxt.interceptor.DemoInterceptor2"></bean>
+		</mvc:interceptors>-->
+	   	
+</beans>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.CommentDao">
+	<resultMap type="comment" id="commentInfo">
+		<id column="cid" property="id"></id>
+		<result column="publish_time" property="publishTime"></result>
+		<result column="content" property="content"></result>
+		<result column="goods_id" property="goodsId"></result>
+		<association javaType="user" property="user">
+			<id column="user_id" property="id"></id>
+			<result column="username" property="username"></result>
+		</association>
+		<association property="replyNums" column="cid" select="cn.edu.xtu.lostfound.dao.ReplyDao.selNumsByCommentId"></association>
+		<collection property="listReply" ofType="reply" select="cn.edu.xtu.lostfound.dao.ReplyDao.selInfoByCommentId" column="cid"></collection>
+	</resultMap>
+	
+	<insert id="insert" parameterType="comment">
+		insert into comment (publish_time,content,goods_id,uid) values (#{publishTime},#{content},#{goodsId},#{user.id})
+	</insert>
+	
+	<select id="selNumsByGoodsId" parameterType="int" resultType="int">
+		select count(*) from comment where goods_id=#{goodsId}
+	</select>
+	
+	<select id="selInfoByGoodsId" parameterType="int" resultMap="commentInfo">
+		select c.id cid,publish_time,content,goods_id,uid,u.id user_id,username
+		from comment c left outer join user u on c.uid=u.id where goods_id=#{goodsId} order by publish_time desc
+	</select>
+	
+	<select id="selNumsByConditions" parameterType="comment" resultType="int">
+		select count(*) from comment
+		<where>
+			<if test="content!=null and content!=''">
+				and content like concat('%',#{content},'%')
+			</if>
+			<if test="goodsId!=null">
+				goods_id=#{goodsId}
+			</if>
+			<if test="user!=null and user.id!=null">
+				uid=#{user.id}
+			</if>
+			<if test="publishTime!=null and publishTime!=''">
+				and publish_time &gt;= #{publishTime}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selInfoByConditions" parameterType="comment" resultMap="commentInfo">
+		select c.id cid,publish_time,content,goods_id,uid,u.id user_id,username
+		from comment c left outer join user u on c.uid=u.id
+		<where>
+			<if test="content!=null and content!=''">
+				and content like concat('%',#{content},'%')
+			</if>
+			<if test="goodsId!=null">
+				goods_id=#{goodsId}
+			</if>
+			<if test="user!=null and user.id!=null">
+				uid=#{user.id}
+			</if>
+			<if test="publishTime!=null and publishTime!=''">
+				and publish_time &gt;= #{publishTime}
+			</if>
+		</where>
+		order by publish_time desc
+	</select>
+	
+	<select id="selInfoById" parameterType="Integer" resultMap="commentInfo">
+		select c.id cid,publish_time,content,goods_id,uid,u.id user_id,username
+		from comment c left outer join user u on uid=u.id where c.id=#{id}
+	</select>
+	
+	<delete id="deleteById" parameterType="Integer">
+		delete from comment where id=#{id}
+	</delete>
+	
+	
+</mapper>

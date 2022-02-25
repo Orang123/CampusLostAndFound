@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.UserDao">
+	<resultMap type="user" id="userInfo">
+		<id column="id" property="id"></id>
+		<result column="username" property="username"></result>
+		<!--  <result column="password" property="password"></result>-->
+		<result column="qq" property="qq"></result>
+		<result column="email" property="email"></result>
+		<result column="role" property="role"></result>
+		<result column="start_time" property="startTime"></result>
+		<result column="forbid_talk_duration" property="forbidTalkDuration"></result>
+	</resultMap>
+	
+	<sql id="columns">
+		id,username,qq,email,role
+	</sql>
+	
+	<sql id="userDetail"><!--这里是查询包括了禁言相关的属性,主要用在在线聊天室里-->
+		id,username,qq,email,role,start_time,forbid_talk_duration
+	</sql>
+	
+	<select id="selByNameAndPassword" parameterType="user" resultMap="userInfo">
+		select <include refid="columns"/> 
+		from user where username=#{username} and password=#{password}
+	</select>
+	
+	<update id="update" parameterType="user">
+		update user
+		<set>
+			<!-- id=#{id} 目的防止<set>中没有内容,mybatis 不生成 set 关
+			键字,如果修改中没有 set 从句 SQL 语法错误. -->
+			id=#{id},
+			<if test="username!=null and username!=''">
+				username=#{username},
+			</if>
+			<if test="password!=null and password!=''">
+				password=#{password},
+			</if>
+			<if test="qq!=null and qq!=''">
+				qq=#{qq},
+			</if>
+			<if test="email!=null and email!=''">
+				email=#{email},
+			</if>
+			<if test="role!=null">
+				role=#{role},
+			</if>
+			<if test="startTime!=null">
+				start_time=#{startTime},
+			</if>
+			<if test="forbidTalkDuration!=null">
+				forbid_talk_duration=#{forbidTalkDuration}
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<select id="selNumsByConditions" parameterType="user" resultType="int">
+		select count(*) from user
+		<where>
+		<!-- concat拼接字符串 -->
+			<if test="username!=null and username!=''">
+				username like concat('%',#{username},'%')
+			</if>
+			<if test="qq!=null and qq!=''">
+				and qq like concat('%',#{qq},'%')
+			</if>
+			<if test="email!=null and email!=''">
+				and email like concat('%',#{email},'%')
+			</if>
+			<if test="role!=null">
+				and role=#{role}
+			</if>
+			<if test="startTime!=null and startTime==-1"><!-- =-1代表正常用户 -->
+				and start_time=#{startTime}
+			</if>
+			<if test="startTime!=null and startTime==0"><!-- >0代表被禁言的用户 -->
+				and start_time &gt; #{startTime}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selByConditions" parameterType="user" resultMap="userInfo">
+		select id,username,qq,email,role,start_time from user
+		<where>
+		<!-- concat拼接字符串 -->
+			<if test="username!=null and username!=''">
+				username like concat('%',#{username},'%')
+			</if>
+			<if test="qq!=null and qq!=''">
+				and qq like concat('%',#{qq},'%')
+			</if>
+			<if test="email!=null and email!=''">
+				and email like concat('%',#{email},'%')
+			</if>
+			<if test="role!=null">
+				and role=#{role}
+			</if>
+			<if test="startTime!=null and startTime==-1">
+				and start_time=#{startTime}
+			</if>
+			<if test="startTime!=null and startTime==0">
+				and start_time &gt; #{startTime}
+			</if>
+		</where>
+	</select>
+	
+	<delete id="deleteById" parameterType="int">
+		delete from user where id=#{id}
+	</delete>
+	
+	<insert id="insertUser" parameterType="user">
+		insert into user 
+		(username,password,qq,email,role) values 
+		(#{username},#{password},#{qq},#{email},#{role})
+	</insert>
+	
+	<select id="selByUsername" parameterType="String" resultMap="userInfo">
+		select <include refid="columns"/>  from user where username=#{username}
+	</select>
+	
+	<select id="selByQQ" parameterType="String" resultMap="userInfo">
+		select <include refid="columns"/>  from user where qq=#{qq}
+	</select>
+	
+	<select id="selByEmail" parameterType="String" resultMap="userInfo">
+		select <include refid="columns"/>  from user where email=#{email}
+	</select>
+	
+	<select id="selById" parameterType="Integer" resultMap="userInfo">
+		select <include refid="userDetail"/> from user where id=#{id}
+	</select>
+	
+	<select id="editById" parameterType="Integer" resultMap="userInfo">
+		select <include refid="userDetail"/> from user where id=#{id}
+	</select>
+	
+	<select id="selByEditUsername" resultMap="userInfo">
+		select <include refid="columns"/>  from user where id!=#{id} and username=#{username}
+	</select>
+	
+	<select id="selByEditQQ" resultMap="userInfo">
+		select <include refid="columns"/>  from user where id!=#{id} and qq=#{qq}
+	</select>
+	
+	<select id="selByEditEmail" resultMap="userInfo">
+		select <include refid="columns"/>  from user where id!=#{id} and email=#{email}
+	</select>
+	
+</mapper>

@@ -1,0 +1,44 @@
+@charset "UTF-8";	
+.wrpage{
+	color:black;
+    display: inline-block;
+    background: skyblue;
+    margin-left: 4px;
+    height: 30px;
+    line-height: 30px;
+    border: 1px solid skyblue;
+    padding: 0 5px;
+    font-size: 13px;
+    cursor: pointer;
+    border-radius: 3px;
+    font-family: "仿宋";
+}
+
+a.wrpage:hover{
+	text-decoration:none;
+    background: #FFFFFF;
+    color: black;
+}
+
+a {  
+    text-decoration:none;
+    color: white;
+}
+
+.wrpage_number{
+    width: 24px;
+    font-size: 16px;
+    text-align: center;
+}
+
+.wr_dotted{
+    height: 24px;
+    line-height: 24px;
+    display: inline-block;
+}
+
+.curwrpage{
+    background: #FFFFFF;
+    cursor: auto;
+    border: 1px solid skyblue;
+}

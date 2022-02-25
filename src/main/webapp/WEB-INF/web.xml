@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" version="2.5">
+  	<display-name>CampusLostAndFound</display-name>
+  	<welcome-file-list>
+    	<welcome-file>home.jsp</welcome-file>
+  	</welcome-file-list>
+  	
+  	<!-- 配置监听器上下文参数来加载springIOC容器 -->
+  	<context-param>
+  		<param-name>contextConfigLocation</param-name>
+  		<param-value>classpath:conf/spring-*.xml</param-value>
+  	</context-param>
+  	<listener>
+  		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+  	</listener>
+  	
+  	<!-- 配置前端控制器,发生请求时加载springmvc.xml -->
+  	<servlet>
+  		<servlet-name>springmvc</servlet-name>
+  		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+  		<init-param>
+  			<param-name>contextConfigLocation</param-name>
+  			<param-value>classpath:conf/springmvc.xml</param-value>
+  		</init-param>
+  		<!--1)load-on-startup元素标记容器是否在启动的时候就加载这个servlet(实例化并调用其init()方法)。
+		2)它的值必须是一个整数，表示servlet应该被载入的顺序
+		3)当值为0或者大于0时，表示容器在应用启动时就加载并初始化这个servlet；
+		4)当值小于0或者没有指定时，则表示容器在该servlet被选择时才会去加载。
+		5)正数的值越小，该servlet的优先级越高，应用启动时就越先加载。
+		6)当值相同时，容器就会自己选择顺序来加载。 -->
+  		<load-on-startup>1</load-on-startup>
+  	</servlet>
+  	<servlet-mapping>
+  		<servlet-name>springmvc</servlet-name>
+  		<!-- 过滤会匹配到/springmvc这样的路径型url，不会匹配到模式为*.jsp这样的后缀型url,其次还可以匹配静态资源.js .css image -->
+  		<url-pattern>/</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+  		<servlet-name>springmvc</servlet-name>
+  		<url-pattern>/index</url-pattern>
+  	</servlet-mapping>
+  	
+  	<!-- 配置字符编码过滤器 -->
+  	<filter>
+  		<filter-name>characterEncodingFilter</filter-name>
+  		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+  		<!-- 配置编码格式为utf-8 -->
+  		<init-param>
+  			<param-name>encoding</param-name>
+  			<param-value>UTF-8</param-value>
+  		</init-param>
+  		<!-- 配置request请求编码格式为utf-8 -->
+  		<init-param>
+  			<param-name>forceRequestEncoding</param-name>
+  			<param-value>true</param-value>
+  		</init-param>
+  		<!-- 配置response请求编码格式为utf-8 -->
+  		<init-param>
+  			<param-name>forceResponseEncoding</param-name>
+  			<param-value>true</param-value>
+  		</init-param>
+  	</filter>
+  	
+  	<filter-mapping>
+  		<filter-name>characterEncodingFilter</filter-name>
+  		<!-- 会匹配所有的url：路径型的和后缀型的url(包括/springmvc，.jsp，.js和*.html等) -->
+  		<url-pattern>/*</url-pattern>
+  	</filter-mapping>
+  
+  
+</web-app>

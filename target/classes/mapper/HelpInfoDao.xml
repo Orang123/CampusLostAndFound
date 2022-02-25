@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.HelpInfoDao">
+	<resultMap type="helpInfo" id="helpMessage">
+		<id column="id" property="id" />
+		<result column="title" property="title"/>
+		<result column="publish_time" property="publishTime"/>
+		<result column="content" property="content"/>
+		<association property="user" column="uid" select="cn.edu.xtu.lostfound.dao.UserDao.selById"></association>
+	</resultMap>
+	
+	<sql id="columns">
+		id,title,content
+	</sql>
+	
+	<insert id="insert">
+		insert into help_info (title,publish_time,content,uid) values (#{title},#{publishTime},#{content},#{user.id})
+	</insert>
+	
+	<select id="selAllNums" resultType="int">
+		select count(*) from help_info
+	</select>
+	
+	<select id="selAllInfo" resultMap="helpMessage">
+		select * from help_info
+	</select>
+	
+	<update id="update" parameterType="helpInfo">
+		update help_info
+		<set>
+			<!-- id=#{id} 目的防止<set>中没有内容,mybatis 不生成 set 关
+			键字,如果修改中没有 set 从句 SQL 语法错误. -->
+			id=#{id},
+			<if test="title!=null and title!=''"><!-- 这里只要不修改为空值,都默认更新 -->
+				title=#{title},
+			</if>
+			<if test="content!=null and content!=''"><!-- 会自动去掉最后一个逗号 -->
+				content=#{content},
+			</if>
+		</set>
+		where id=#{id}
+	</update>
+	
+	<delete id="deleteById" parameterType="int">
+		delete from help_info where id=#{id}
+	</delete>
+	
+	<select id="selInfoById" parameterType="Integer" resultMap="helpMessage">
+		select <include refid="columns"/> from help_info where id=#{id}
+	</select>
+	
+</mapper>

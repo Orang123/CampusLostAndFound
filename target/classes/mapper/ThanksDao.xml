@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.ThanksDao">
+
+	<resultMap type="thanksLetter" id="thanksInfo">
+		<id column="id" property="id"></id>
+		<result column="publish_time" property="publishTime"></result>
+		<result column="title" property="title"></result>
+		<result column="content" property="content"></result>
+		<association property="user" select="cn.edu.xtu.lostfound.dao.UserDao.selById" column="uid"></association>
+	</resultMap>
+	
+	<insert id="insert" parameterType="thanksLetter">
+		insert into thanks_letter (publish_time,title,content,uid) values (#{publishTime},#{title},#{content},#{user.id})
+	</insert>
+	
+	<select id="selAllNums" resultType="int">
+		select count(*) from thanks_letter
+	</select>
+	
+	<select id="selAllInfo" resultMap="thanksInfo">
+		select * from thanks_letter
+	</select>
+	
+	<select id="selInfoById" resultMap="thanksInfo">
+		select * from thanks_letter where id=#{id}
+	</select>
+	
+	<select id="selNumsByConditions" resultType="int" parameterType="thanksLetter">
+		select count(*) from thanks_letter
+		<where>
+			<if test="title!=null and title!=''">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="content!=null and content!=''">
+				and content like concat('%',#{content},'%')
+			</if>
+			<if test="publishTime!=null and publishTime!=''">
+				and publish_time &gt;= #{publishTime}
+			</if>
+			<if test="user!=null and user.id!=null"><!-- 这里得先判断user是否为null,再判断user.id是否为null -->
+				and uid=#{user.id}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selInfoByConditions" resultMap="thanksInfo" parameterType="thanksLetter">
+		select * from thanks_letter
+		<where>
+			<if test="title!=null and title!=''">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="content!=null and content!=''">
+				and content like concat('%',#{content},'%')
+			</if>
+			<if test="publishTime!=null and publishTime!=''">
+				and publish_time &gt;= #{publishTime}
+			</if>
+			<if test="user!=null and user.id!=null"><!-- 这里得先判断user是否为null,再判断user.id是否为null -->
+				and uid=#{user.id}
+			</if>
+		</where>
+		order by publish_time desc
+	</select>
+	
+	<delete id="deleteById" parameterType="Integer">
+		delete from thanks_letter where id=#{id}
+	</delete>
+	
+	<select id="selNumsByUId" parameterType="Integer" resultType="int">
+		select count(*) from thanks_letter where uid=#{uid}
+	</select>
+	
+	<select id="selInfoByUId" parameterType="Integer" resultMap="thanksInfo">
+		select * from thanks_letter where uid=#{uid}
+	</select>
+
+</mapper>

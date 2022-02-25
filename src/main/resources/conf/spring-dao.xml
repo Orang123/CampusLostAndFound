@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+	   		http://www.springframework.org/schema/beans/spring-beans.xsd
+	   		http://www.springframework.org/schema/context
+	   		http://www.springframework.org/schema/context/spring-context.xsd">
+	   		
+		<!-- 配置数据访问层整合mybatis过程 -->
+		<!-- 导入数据库相关参数properties的属性 -->
+		<context:property-placeholder location="classpath:conf/db.properties"/>
+		<!-- 配置数据库连接信息 -->
+		<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+			<property name="driverClassName" value="${jdbc.driver}"></property>
+			<property name="url" value="${jdbc.url}"></property>
+			<property name="username" value="${jdbc.username}"></property>
+			<property name="password" value="${jdbc.password}"></property>
+		</bean>
+		
+		<!-- spring整合mybatis -->
+		<!-- 配置SQLSessionFactory对象 -->
+		<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+			<!-- 注入数据库连接池 -->
+			<property name="dataSource" ref="dataSource"></property>
+			<!-- mybatis主配置文件位置 -->
+			<property name="configLocation" value="classpath:conf/mybatis-config.xml"></property>
+			<!-- 扫描entity包 使用别名;多个包的使用;分开即可,和mybatis主配置文件里的typeAliases package用法一致，此处可以一次扫描多个包支持通配符* -->
+			<property name="typeAliasesPackage" value="cn.edu.xtu.lostfound.entity"></property>
+			 <!-- 当mybatis的xml文件和mapper接口不在相同包下时，需要用mapperLocations属性指定xml文件的路径。  *是个通配符，代表所有的文件，**代表所有目录下,作用等同于mybatis主配置文件里mappers package的用法 -->   
+			<property name="mapperLocations" value="classpath:mapper/*.xml"></property>
+		</bean>
+		
+		<!-- 配置扫描DAO接口包，动态实现DAO接口，注入到spring容器中,默认的动态注入bean id为驼峰命名首字母小写 -->
+		<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+			<!-- 如果这里使用sqlSessionFactory ref注入会出现,在初始化MyBatis时，jdbc.properties文件还没被加载进来，dataSource的属性值没有被替换，就开始构造sqlSessionFactory类，属性值就会加载失败。 -->
+			<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
+			<!-- 给出需要扫描的DAO接口包,这里扫描的是.java interface接口-->
+			<property name="basePackage" value="cn.edu.xtu.lostfound.dao"></property>
+		</bean>
+
+		<bean id="captchaProducer" class="com.google.code.kaptcha.impl.DefaultKaptcha">
+			<property name="config">
+				<bean class="com.google.code.kaptcha.util.Config">
+					<constructor-arg	type="java.util.Properties">
+						<props>
+							<prop key="kaptcha.image.width">100</prop>
+							<prop key="kaptcha.image.height">40</prop>
+							<prop key="kaptcha.textproducer.char.length">4</prop>
+							<prop key="kaptcha.textproducer.font.size">32</prop>
+						</props>
+					
+					</constructor-arg>
+				</bean>
+			</property>
+		</bean>
+
+</beans>

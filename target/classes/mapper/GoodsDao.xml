@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- DOCTYPE代表第一个标签是mapper 出现叹号可把mapper下面的去掉再粘上试试 -->
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.GoodsDao">
+
+	<resultMap type="goods" id="goodsInfo">
+		<id column="id" property="id"/>
+		<result column="info_type" property="infoType"/>
+		<result column="title" property="title"/>
+		<result column="publish_time" property="publishTime"/>
+		<result column="goods_name" property="goodsName"/>
+		<result column="goods_Type" property="goodsType"/>
+		<result column="happen_place" property="happenPlace"/>
+		<result column="happen_time" property="happenTime"/>
+		<result column="img_url" property="imgUrl"/>
+		<result column="state" property="state"/>
+		<association property="user" column="uid" select="cn.edu.xtu.lostfound.dao.UserDao.selById"></association>
+		<association property="answerUser" column="auid" select="cn.edu.xtu.lostfound.dao.AnswerUserDao.selInfoById"></association>
+		<collection property="listAUser" ofType="answerUser" select="cn.edu.xtu.lostfound.dao.AnswerUserDao.selInfoByGoodsId" column="id"></collection>
+	</resultMap>
+	
+	<select id="selAllNums" resultType="int">
+		select count(*) from goods
+		<where>
+			state=#{state}
+			<if test="infoType!=null and infoType!=''">
+				and info_type=#{infoType}
+			</if>
+		</where>
+	</select>
+
+	<select id="selAllInfo" resultMap="goodsInfo">
+		select * from goods
+		<where>
+			state=#{state}
+			<if test="infoType!=null and infoType!=''">
+				and info_type=#{infoType}
+			</if>
+		</where>
+		order by publish_time desc
+	</select>
+	<!-- 这里要按发布时间publish_time降序,因为有可能用户是丢了好几天东西后才发布的,而不按发生时间降序排列,这样可能显示的结果最新发布的并不会排在前面 -->
+	
+	<insert id="insert" parameterType="goods">
+		insert into goods 
+		(info_type,title,publish_time,goods_name,goods_type,happen_place,happen_time,img_url,state,uid) values 
+		(#{infoType},#{title},#{publishTime},#{goodsName},#{goodsType},#{happenPlace},#{happenTime},#{imgUrl},#{state},#{user.id})
+	</insert>
+	
+	<!-- 1.当编写 where 标签时,如果内容中第一个是 and 去掉第一个and
+		 2.如果<where>中有内容会生成 where 关键字,如果没有内容不生成 where 关键 -->
+	<select id="selNumsByConditions" parameterType="goods" resultType="int">
+		select count(*) from goods
+		<where>
+		<!-- concat拼接字符串 -->
+			<if test="infoType!=null and infoType!=''">
+				info_type=#{infoType}
+			</if>
+			<if test="title!=null and title!=''">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="goodsName!=null and goodsName!=''">
+				and goods_name like concat('%',#{goodsName},'%')
+			</if>
+			<if test="goodsType!=null and goodsType!=''">
+				and goods_type=#{goodsType}
+			</if>
+			<if test="happenPlace!=null and happenPlace!=''">
+				and happen_place like concat('%',#{happenPlace},'%')
+			</if>
+			<if test="happenTime!=null and happenTime!=''">
+				and happen_time &gt;= #{happenTime}
+			</if>
+			<if test="user!=null and user.id!=null"><!-- 这里得先判断user是否为null,再判断user.id是否为null -->
+				and uid=#{user.id}
+			</if>
+			<if test="answerUser!=null and answerUser.id!=null">
+				and auid=#{answerUser.id}
+			</if>
+			<if test="state!=null">
+				and state=#{state}
+			</if>
+		</where>
+	</select>
+	
+	<select id="selInfoByConditions" parameterType="goods" resultMap="goodsInfo">
+		select * from goods
+		<where>
+			<if test="infoType!=null and infoType!=''">
+				info_type=#{infoType}
+			</if>
+			<if test="title!=null and title!=''">
+				and title like concat('%',#{title},'%')
+			</if>
+			<if test="goodsName!=null and goodsName!=''">
+				and goods_name like concat('%',#{goodsName},'%')
+			</if>
+			<if test="goodsType!=null and goodsType!=''">
+				and goods_type=#{goodsType}
+			</if>
+			<if test="happenPlace!=null and happenPlace!=''">
+				and happen_place like concat('%',#{happenPlace},'%')
+			</if>
+			<if test="happenTime!=null and happenTime!=''">
+				and happen_time &gt;= #{happenTime}
+			</if>
+			<if test="user!=null and user.id!=null">
+				and uid=#{user.id}
+			</if>
+			<if test="answerUser!=null and answerUser.id!=null">
+				and auid=#{answerUser.id}
+			</if>
+			<if test="state!=null">
+				and state=#{state}
+			</if>
+		</where>
+		order by publish_time desc
+	</select>
+	
+	<select id="selInfoById" parameterType="Integer" resultMap="goodsInfo">
+		select * from goods where id=#{id}
+	</select>
+	
+	<update id="updateStateById" >
+		update goods set state=#{state},auid=#{auid} where id=#{id}
+	</update>
+	
+	<delete id="deleteById" parameterType="Integer">
+		delete from goods where id=#{id}
+	</delete>
+	
+	<select id="selNumsByAuId" resultType="int">
+		select count(*) from goods where info_type=#{infoType} and auid in
+		<foreach collection="list" item="answerUserId" open="(" close=")" separator=",">
+			#{answerUserId}
+		</foreach>
+	</select>
+	
+	<select id="selInfoByAuId" resultMap="goodsInfo">
+		select * from goods where info_type=#{infoType} and auid in
+		<foreach collection="list" item="answerUserId" open="(" close=")" separator=",">
+			#{answerUserId}
+		</foreach>
+		order by publish_time desc
+	</select>
+	
+</mapper>

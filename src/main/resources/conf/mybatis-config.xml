@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		 <!-- 配置日志实现方式是log4j -->
+		 <setting name="logImpl" value="LOG4J"/>
+		 <!-- 全局启用或禁用延迟加载。当禁用时, 所有关联对象都会即时加载。  -->
+		 <setting name="lazyLoadingEnabled" value="true"/>
+		 <!-- 当启用时, 有延迟加载属性的对象在被 调用时将会完全加载任意属性。否则, 每种属性将会按需要加载。  -->
+		 <setting name="aggressiveLazyLoading" value="false"/>
+	</settings>
+	
+	<!-- 为entity实体起别名，默认为类名首字母小写 -->
+	<typeAliases>
+		<package name="cn.edu.xtu.lostfound.entity"/>
+	</typeAliases>
+	
+	<!-- 配置mybatis分页插件 pagehelper -->
+	<plugins>
+		<!-- 老版本的pagehelper实现了Interceptor接口,新版本没有,新版本是PageInterceptor实现了该接口 -->
+		<plugin interceptor="com.github.pagehelper.PageInterceptor">
+			<!-- 启用合理化时，如果pageNum<1会查询第一页，如果pageNum>pages会查询最后一页 -->
+        	<!-- 禁用合理化时，如果pageNum<1或pageNum>pages会返回空数据 -->
+			<property name="reasonable" value="true"/>
+			<!-- 新版本无需手动配置dialect会自动加载properties默认属性自己判定-->
+			<property name="helperDialect" value="mysql"/>
+		</plugin>
+	</plugins>
+	
+	<!-- mapper.xml映射所在位置 -->
+	<mappers>
+		<package name="classpath:mapper/*.xml"/>
+	</mappers>
+</configuration>

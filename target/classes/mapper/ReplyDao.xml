@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.edu.xtu.lostfound.dao.ReplyDao">
+
+	<resultMap type="reply" id="replyInfo">
+		<id column="id" property="id"/>
+		<result column="publish_time" property="publishTime"/>
+		<result column="content" property="content"/>
+		<result column="comment_id" property="commentId"/>
+		<association property="repliedUser" column="replied_uid" select="cn.edu.xtu.lostfound.dao.UserDao.selById"></association>
+		<association property="user" column="uid" select="cn.edu.xtu.lostfound.dao.UserDao.selById"></association>
+	</resultMap>
+	
+	<insert id="insert" parameterType="reply">
+		insert into reply 
+		(publish_time,content,comment_id,replied_uid,uid) values 
+		(#{publishTime},#{content},#{commentId},#{repliedUser.id},#{user.id})
+	</insert>
+	
+	<select id="selInfoByCommentId" parameterType="Integer" resultMap="replyInfo">
+		select * from reply where comment_id=#{commentId} order by publish_time desc
+	</select>
+	
+	<select id="selNumsByCommentId" parameterType="Integer" resultType="int">
+		select count(*) from reply where comment_id=#{commentId}
+	</select>
+	
+	<delete id="deleteById" parameterType="Integer">
+		delete from reply where id=#{id}
+	</delete>
+	
+</mapper>
